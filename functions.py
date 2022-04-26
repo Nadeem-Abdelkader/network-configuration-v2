@@ -11,15 +11,17 @@ GUI framework = Tkinter
 This file contains the helper function to be called from main.py
 """
 
+# importing the necessary libraries
 from tkinter import Frame, Label, Entry, X, LEFT, RIGHT, YES, messagebox, Button, Tk, TOP, ttk, StringVar, OptionMenu, \
     END
 
 from parsing import read_from_txt_files, write_to_files
 
-global entries, labels, value_inside_inet, data_dict, value_inside_iface, my_ents
+# declaring globals and constants to be used everywhere in the module
+global entries, labels, value_inside_inet, value_inside_iface, my_ents, txt_result
+global Network_tab, FQND_tab
 
 data_dict = read_from_txt_files()
-# print(data_dict)
 
 FIELDS = {
     'iface': 'Interface',
@@ -33,42 +35,52 @@ FIELDS = {
 }
 
 
+def track_iface(var, index, mode):
+    """
+    This function tracks changes that happen to the iface field in order to update the corresponding fields
+    (inet, address, netmask, gateway)
+    :return: void
+    """
+    current_choice = [d for d in data_dict['INTERFACESOPTS'] if d['iface'] == value_inside_iface.get()]
+    value_inside_inet.set(current_choice[0]['inet'])
+
+    entries['address'].delete(0, END)
+    entries['address'].insert(0, current_choice[0]['address'])
+
+    entries['netmask'].delete(0, END)
+    entries['netmask'].insert(0, current_choice[0]['netmask'])
+
+    entries['gateway'].delete(0, END)
+    entries['gateway'].insert(0, current_choice[0]['gateway'])
+
+    return
+
+
 def track_inet(var, index, mode):
+    """
+    This function tracks changes that happen to the inet field in order to hide/show the corresponding fields
+    (address, netmask, gateway)
+    :return: void
+    """
     if value_inside_inet.get() == 'dhcp':
-        # entries['address'].delete(0, END)
-        # entries['address'].insert(0, "")
         entries['address'].pack_forget()
         labels['address'].pack_forget()
 
-        # entries['netmask'].delete(0, END)
-        # entries['netmask'].insert(0, "")
         entries['netmask'].pack_forget()
         labels['netmask'].pack_forget()
-        # print(entries)
-        # entries['gateway'].delete(0, END)
-        # entries['gateway'].insert(0, "")
+
         entries['gateway'].pack_forget()
         labels['gateway'].pack_forget()
     else:
-        # print(entries)
         entries['address'].pack(side=RIGHT, expand=YES, fill=X)
         labels['address'].pack(side=LEFT)
+
         entries['netmask'].pack(side=RIGHT, expand=YES, fill=X)
         labels['netmask'].pack(side=LEFT)
+
         entries['gateway'].pack(side=RIGHT, expand=YES, fill=X)
         labels['gateway'].pack(side=LEFT)
-
-
-def track_iface(var, index, mode):
-    current_choice = [d for d in data_dict['INTERFACESOPTS'] if d['iface'] == value_inside_iface.get()]
-    # entries['inet'].delete(0, END)
-    value_inside_inet.set(current_choice[0]['inet'])
-    entries['address'].delete(0, END)
-    entries['address'].insert(0, current_choice[0]['address'])
-    entries['netmask'].delete(0, END)
-    entries['netmask'].insert(0, current_choice[0]['netmask'])
-    entries['gateway'].delete(0, END)
-    entries['gateway'].insert(0, current_choice[0]['gateway'])
+    return
 
 
 def make_form(fields):
@@ -86,9 +98,6 @@ def make_form(fields):
     inet_options = ["static", "dhcp"]
     value_inside_iface = StringVar(my_root)
     value_inside_inet = StringVar(my_root)
-
-    # value_inside_iface.set(data_dict['INTERFACESOPTS'][1]['iface'])
-    # value_inside_inet.set(data_dict['INTERFACESOPTS'][1]['inet'])
 
     value_inside_iface.trace_add('write', track_iface)
     value_inside_inet.trace_add('write', track_inet)
@@ -131,10 +140,10 @@ def submit(my_ents):
     """
     This function is executed when the user fills in all the inforamtion and clicks submit.
     It takes all the entered information an writes it to a .json file (users.json)
-    :param entries: an array of entries that contain the entered information
+    :param my_ents: an array of entries that contain the entered information
     :return: void
     """
-    # Uncomment this if you want to make all fields except 'address', 'netmask', and 'gateway' required
+    # Comment this out (next 10 lines) if you want to make all fields optional
     empty_field = False
     for i in entries:
         if i in ['iface', 'inet']:
@@ -164,37 +173,18 @@ def submit(my_ents):
                     data_dict[i] = list(filter(None, data_dict[i]))
                 else:
                     data_dict[i] = my_ents[i].get()
-        # print(data_dict)
         write_to_files(data_dict)
-        # print(my_ents)
-        # print(value_inside_iface.get())
-        # print(my_ents['address'].get())
         txt_result.config(text="Successfully submitted data!", fg="green")
         clear(my_ents, True)
     return
 
+
 def read(my_ents):
     """
     This function re reads data from .txt file and re populates the entries
-    :param ents: entries to re populate
+    :param my_ents: entries to re populate
     :return: void
     """
-    # global entries, labels, value_inside_inet, value_inside_iface
-    # entries = {}
-    # labels = {}
-    # iface_options = []
-    # for i in data_dict['INTERFACESOPTS'][1:]:
-    #     iface_options.append(i['iface'])
-    # inet_options = ["static", "dhcp"]
-    # value_inside_iface = StringVar(my_root)
-    # value_inside_inet = StringVar(my_root)
-    #
-    # # value_inside_iface.set(data_dict['INTERFACESOPTS'][1]['iface'])
-    # # value_inside_inet.set(data_dict['INTERFACESOPTS'][1]['inet'])
-    #
-    # value_inside_iface.trace_add('write', track_iface)
-    # value_inside_inet.trace_add('write', track_inet)
-
     for field in FIELDS:
         if field in ['iface', 'inet']:
             pass
@@ -218,7 +208,7 @@ def clear(my_ents, on_submit=False):
     """
     This function is executed when the users clicks the "clear" button.
     It resets the entire form
-    :param entries: an array of entries to clear
+    :param my_ents: an array of entries to clear
     :param on_submit: if clear on submit or not in order to display the correct message
     :return: void
     """
@@ -265,13 +255,19 @@ def create_buttons():
 
 
 def make_tabs(my_root):
+    """
+    This function creates the 2 seperate tabs of our program (Network and FQND)
+    :param my_root: root Tkinter window
+    :return: void
+    """
     global Network_tab, FQND_tab
-    tabControl = ttk.Notebook(my_root)
-    Network_tab = Frame(tabControl)
-    FQND_tab = Frame(tabControl)
-    tabControl.add(Network_tab, text='Network')
-    tabControl.add(FQND_tab, text='FQND')
-    tabControl.pack()
+    tab_control = ttk.Notebook(my_root)
+    Network_tab = Frame(tab_control)
+    FQND_tab = Frame(tab_control)
+    tab_control.add(Network_tab, text='Network')
+    tab_control.add(FQND_tab, text='FQND')
+    tab_control.pack()
+    return
 
 
 def text_alert():
