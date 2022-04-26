@@ -12,12 +12,10 @@ GUI framework = Tkinter
 # !/usr/bin/env python3
 
 # importing the helper functions from functions.py
-from functions import text_alert, create_buttons, my_root
+from functions import my_root
 
 if __name__ == '__main__':
     """
     Calling the helper functions from functions.py to start and run the application
     """
-    # text_alert()
-    # create_buttons()
     my_root.mainloop()
