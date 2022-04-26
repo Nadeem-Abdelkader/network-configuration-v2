@@ -1,4 +1,17 @@
-# PARSING FOR NETWORK CONFIG INTERFACE
+"""
+NETWORK CONFIGURATION SCREEN Application - v2
+- Reads user network configuration data from multiple .txt files then allows user to edit and writes back updated data
+to .txt files
+
+Created by: Nadeem Abdelkader on 11/4/2022
+Last updated by Nadeem Abdelkader on 11/4/2022
+
+GUI framework = Tkinter
+
+This file contains the helper functions that are used for parsing txt files to dictionaries in functions.py
+"""
+
+# declaring the constants to be used everywhere in the module
 INTERFACESOPTS_FIELDS = ['iface', 'inet', 'address', 'netmask', 'gateway']
 MAIN_FIELDS = ['INTERFACESOPTS', 'hostname', 'domain', 'nameserver']
 
@@ -20,7 +33,6 @@ MAIN_DICT = {
 }
 
 BASE_DIR = "/usr/local/KC/"
-# BASE_DIR = "KC/"
 
 # For development
 OS_BASE_DIR = BASE_DIR
@@ -52,6 +64,10 @@ def read_from_txt_files():
 
 
 def read_from_resolv_file():
+    """
+    This function reads and returns the domain name and the nameservers from resolv.conf file
+    :return: domain name and list of nameservers in a tuple (domain name, [nameserver])
+    """
     resolv_file = open(RESOLV_FILE, 'r')
     domain = resolv_file.readline().split()
     res = [domain[1]]
@@ -61,16 +77,26 @@ def read_from_resolv_file():
         a = nameservers[i].strip("\n").split()
         nameservers_lst.append(a[1])
     res.append(nameservers_lst)
+
     return domain[1], nameservers_lst
 
 
 def read_from_hostname_file():
+    """
+    This function reads and returns the hostname from hostname file
+    :return: hostname
+    """
     host_file = open(HOST_FILE, 'r')
     hostname = host_file.read()
     return hostname
 
 
 def read_from_interfaces_file():
+    """
+    This function reads and returns the iface, inet, address, netmask, and gateway from the interfaces file
+    :return: interfaces: a list of dictionaries where each dictionary contains the configuration for a certain
+                         interfaces (e.g. eth0, eth1, etc...)
+    """
     interfaces = []
     interfaces_file = open(INTERFACES_FILE, 'r').read().split("\n\n")
     for interface in interfaces_file:
@@ -84,6 +110,11 @@ def read_from_interfaces_file():
 
 
 def write_to_files(data):
+    """
+    This function writes a dictionary to 3 files (resolv.conf, hostname, interfaces)
+    :param data: dictioanry to write to files
+    :return: void
+    """
     interfaces_file = open(INTERFACES_FILE, 'w')
     host_file = open(HOST_FILE, 'w')
     resolv_file = open(RESOLV_FILE, 'w')
@@ -119,8 +150,3 @@ def write_to_files(data):
             for j in data[i]:
                 resolv_file.write(MAIN_FIELDS[3].lower() + " " + j + "\n")
     return
-
-
-# data = read_from_txt_files()
-# print(data)
-# write_to_files(data)
