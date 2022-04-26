@@ -1,5 +1,5 @@
 """
-NETWORK CONFIGURATION SCREEN Application
+NETWORK CONFIGURATION SCREEN Application - v2
 - Reads user network configuration data from multiple .txt files then allows user to edit and writes back updated data
 to .txt files
 
@@ -18,6 +18,6 @@ if __name__ == '__main__':
     """
     Calling the helper functions from functions.py to start and run the application
     """
-    text_alert()
-    create_buttons()
+    # text_alert()
+    # create_buttons()
     my_root.mainloop()
