@@ -38,7 +38,7 @@ BASE_DIR = "/usr/local/KC/"
 OS_BASE_DIR = BASE_DIR
 
 # For production
-# OS_BASE_DIR = "/"
+OS_BASE_DIR = "/"
 
 ANSWERS_FILE = OS_BASE_DIR + "config/answers.txt"
 HOST_FILE = OS_BASE_DIR + "etc/hostname"
@@ -69,16 +69,16 @@ def read_from_resolv_file():
     :return: domain name and list of nameservers in a tuple (domain name, [nameserver])
     """
     resolv_file = open(RESOLV_FILE, 'r')
-    domain = resolv_file.readline().split()
-    res = [domain[1]]
-    nameservers = resolv_file.readlines()
+    content = resolv_file.readlines()
     nameservers_lst = []
-    for i in range(len(nameservers)):
-        a = nameservers[i].strip("\n").split()
-        nameservers_lst.append(a[1])
-    res.append(nameservers_lst)
-
-    return domain[1], nameservers_lst
+    domain = ""
+    for i in range(len(content)):
+        a = content[i].strip("\n").split()
+        if a[0] == MAIN_FIELDS[2]:
+            domain = a[1]
+        elif a[0] == MAIN_FIELDS[3]:
+            nameservers_lst.append(a[1])
+    return domain, nameservers_lst
 
 
 def read_from_hostname_file():

@@ -294,9 +294,9 @@ def initialise_window():
     my_ents = make_form(FIELDS)
     text_alert()
     create_buttons()
-    # 475x246 - Alpine
+    # 475x265 - Alpine
     # 550x330 - Others
-    my_root.geometry("475x246")
+    my_root.geometry("475x264")
     my_root.title("Network Configuration")
     return my_root
 
